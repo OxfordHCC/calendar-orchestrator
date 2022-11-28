@@ -1,4 +1,4 @@
-import prisma from "../../lib/prisma";
+import prisma from "./lib/prisma.js";
 
 export async function setUserToken(webid, id, secret) {
     const result = await prisma.user.upsert({
@@ -81,4 +81,14 @@ export async function userInfoState(webid) {
         user: true,
         ics: true,
       }
+}
+
+export async function listUsers() {
+  const result = await prisma.user.findMany( {
+    select: {
+      webid: true,
+    }
+  });
+
+  return result;
 }

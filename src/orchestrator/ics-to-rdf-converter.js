@@ -1,10 +1,14 @@
 import { DateTime } from "luxon";
-import { RRule, rrulestr } from "rrule";
-import { eventTTL } from "./resources/events-ttl";
-import { getAvailableSlots } from "./availability-store";
+// import { RRule, rrulestr } from "rrule";
+import pkg_rrule from 'rrule';
+const { RRule, rrulestr } = pkg_rrule;
+import { eventTTL } from "./resources/events-ttl.js";
+import { getAvailableSlots } from "./availability-store.js";
 
-const ICAL = require("ical.js");
-const md5 = require("md5");
+// const ICAL = require("ical.js");
+import ICAL from "ical.js";
+// const md5 = require("md5");
+import md5 from "md5";
 
 async function IcsToJson(ics) {
   const response = await fetch(ics);

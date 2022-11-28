@@ -22,8 +22,8 @@ import {
   setAgentResourceAccess,
 } from "@inrupt/solid-client";
 
-import { convertIcsToRdf } from "./ics-to-rdf-converter";
-import { getUserInfo } from "./database";
+import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
+import { getUserInfo } from "./database.js";
 
 async function updateAvailability(webid, issuer) {
   

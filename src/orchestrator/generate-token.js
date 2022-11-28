@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { setUserToken } from "./database";
+import { setUserToken } from "./database.js";
 
 async function generateToken(email, password, webid, issuer) {
   const token_response = await fetch(issuer + "idp/credentials/", {

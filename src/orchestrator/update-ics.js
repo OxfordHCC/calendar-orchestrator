@@ -1,4 +1,4 @@
-import { setCalendarSourceUrl } from "./database";
+import { setCalendarSourceUrl } from "./database.js";
 
 async function updateIcs(ics, webid) {
   const result = await setCalendarSourceUrl(webid, ics);

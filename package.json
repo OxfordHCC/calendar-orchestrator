@@ -27,6 +27,10 @@
     "notistack": "^2.0.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "rrule": "^2.7.1"
+    "rrule": "^2.7.1",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "prisma": "^4.6.1"
   }
 }

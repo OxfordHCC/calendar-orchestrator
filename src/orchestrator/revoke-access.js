@@ -1,4 +1,4 @@
-import { deleteUser } from "./database";
+import { deleteUser } from "./database.js";
 
 async function revokeAccess(webid) {
   const result = await deleteUser(webid);
