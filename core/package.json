@@ -4,9 +4,9 @@
   "private": true,
   "description": "",
   "type": "module",
-  "main": "orchestrator.js",
+  "main": "app.js",
   "scripts": {
-    "orchestrator": "node orchestrator.js"
+    "app": "node app.js"
   },
   "dependencies": {
     "@inrupt/solid-client": "^1.23.3",
