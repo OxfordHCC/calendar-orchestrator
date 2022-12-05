@@ -17,8 +17,7 @@ async function generateToken(email, password, webid, issuer) {
   const { id, secret } = await token_response.json();
   console.log("my id: ", id, "my secret: ", secret);
   if (id === undefined || secret === undefined) {
-    response.status(401).json({ error: "Could not generate token" });
-    return;
+    return null;
   }
 
   const result = await setUserToken(webid, issuer, id, secret);
