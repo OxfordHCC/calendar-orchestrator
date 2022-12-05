@@ -21,7 +21,7 @@ async function generateToken(email, password, webid, issuer) {
     return;
   }
 
-  const result = await setUserToken(webid, id, secret);
+  const result = await setUserToken(webid, issuer, id, secret);
   console.log(result);
   //response.json(result);
 

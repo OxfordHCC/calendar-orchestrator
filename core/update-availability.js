@@ -26,7 +26,6 @@ import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
 import { getUserInfo } from "./database.js";
 
 async function updateAvailability(webid, issuer) {
-  
   const { id, secret, url } = await getUserInfo(webid);
   if (id, secret, url) {
     let authFetch = await getAccessToken(id, secret, issuer);
