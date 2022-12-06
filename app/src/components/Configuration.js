@@ -15,18 +15,18 @@ import OneLineForm from "./OneLineForm";
 import Review from "./ConfigReview";
 import SignUpForm from "./SignUpForm";
 import { useSnackbar } from "notistack";
-import SolidPodForm from "./SolidPodForm";
+import BasicInfoForm from "./BasicInfoForm";
 
 const steps = ["Solid Pod Info", "Allow access", "Calendar .ics config", "Review"];
 
 const theme = createTheme();
 
-let webID;
-
 export default function Configuration() {
   const [activeStep, setActiveStep] = useState(0);
   const { session } = useSession();
   const solidFetch = session.fetch;
+  const [orchestratorUrl, setOrchestratorUrl] = useState("orchestrator_url");
+  const [webID, setWebID] = useState("webid");
   const [issuer, setIssuer] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const [configStatus, setConfigStatus] = useState({
@@ -60,7 +60,10 @@ export default function Configuration() {
 
   const getConfigState = async () => {
     const response = await fetch(
-      "/api/config-state?" + new URLSearchParams({ webid: webID }).toString()
+      "/api/config-state?" + new URLSearchParams({
+        orchestrator_url: orchestratorUrl,
+        webid: webID
+      }).toString()
     );
     const data = await response.json();
     setConfigStatus({ ...configStatus, ...data });
@@ -79,6 +82,7 @@ export default function Configuration() {
     const response = await fetch("/api/update-ics", {
       method: "PUT",
       body: JSON.stringify({
+        orchestrator_url: orchestratorUrl,
         ics: ics,
         webid: webID,
       }),
@@ -96,6 +100,7 @@ export default function Configuration() {
     const response = await fetch("/api/revoke-access", {
       method: "DELETE",
       body: JSON.stringify({
+        orchestrator_url: orchestratorUrl,
         webid: webID,
       }),
     });
@@ -108,8 +113,9 @@ export default function Configuration() {
     const response_text = await response.json();
   };
 
-  const storeSolidInfo = async (webid, provider) => {
-    webID = webid;
+  const storeSolidInfo = async (orchestrator_url, webid, provider) => {
+    setOrchestratorUrl(orchestrator_url);
+    setWebID(webid);
     setIssuer(provider);
   };
 
@@ -119,6 +125,7 @@ export default function Configuration() {
       // The email/password fields are those of your account.
       // The name field will be used when generating the ID of your token.
       body: JSON.stringify({
+        orchestrator_url: orchestratorUrl,
         webid: webID,
         email: email,
         password: password,
@@ -146,6 +153,7 @@ export default function Configuration() {
     const response = await fetch("/api/update-availability", {
       method: "PUT",
       body: JSON.stringify({
+        orchestrator_url: orchestratorUrl,
         webid: webID,
         issuer: issuer,
       }),
@@ -170,7 +178,7 @@ export default function Configuration() {
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <SolidPodForm trigger={storeSolidInfo} />;
+        return <BasicInfoForm trigger={storeSolidInfo} />;
       case 1:
         return <SignUpForm trigger={generateToken} />;
       case 2:

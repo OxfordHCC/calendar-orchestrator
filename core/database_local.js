@@ -70,7 +70,7 @@ export async function getUserInfo(webid) {
 }
 
 export async function userInfoState(webid) {
-  const result = getUserInfo(webid);
+  const result = await getUserInfo(webid);
 
   if (result == null) {
     return {
@@ -79,7 +79,7 @@ export async function userInfoState(webid) {
     };
   }
 
-  if (result.ics_url == null) {
+  if (result.url == null) {
     return {
       user: true,
       ics: false,

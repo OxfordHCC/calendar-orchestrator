@@ -5,15 +5,16 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-export default function SolidPodForm({ trigger }) {
+export default function BasicInfoForm({ trigger }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
+    let orchestrator_url = data.get("orchestrator_url");
     let webid = data.get("webid");
     let provider = data.get("provider");
 
-    trigger(webid, provider);
+    trigger(orchestrator_url, webid, provider);
   };
 
   return (
@@ -24,6 +25,18 @@ export default function SolidPodForm({ trigger }) {
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              required
+              defaultValue="http://localhost:3000"
+              id="orchestrator_url"
+              name="orchestrator_url"
+              label="Orchestrator URL"
+              fullWidth
+              autoComplete="orchestrator_url"
+              variant="standard"
+            />
+          </Grid>
           <Grid item xs={12}>
             <TextField
               required
@@ -47,7 +60,7 @@ export default function SolidPodForm({ trigger }) {
               variant="standard"
             />
             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
-              Submit Pod Info
+              Submit Basic Info
             </Button>
           </Grid>
         </Grid>

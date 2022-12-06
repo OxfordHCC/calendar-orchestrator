@@ -1,9 +1,9 @@
-import updateIcs from "../../orchestrator/update-ics";
+import { updateIcs } from "../../orchestrator/api";
 
 export default async function handler(request, response) {
-  let { ics, webid } = JSON.parse(request.body);
+  let { orchestrator_url, ics, webid } = JSON.parse(request.body);
 
-  const result = await updateIcs(ics, webid);
+  const result = await updateIcs(orchestrator_url, ics, webid);
 
   response.status(200).json(result);
 }
