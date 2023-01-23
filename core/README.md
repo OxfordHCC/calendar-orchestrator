@@ -16,7 +16,7 @@ To use the CLI entry, do the following:
 
 3. Set up environmental variable for `DATABASE_URL`
 
-4. Run the entry: `npm run orchestrator`
+4. Run the entry: `npm run start`
 
 
 

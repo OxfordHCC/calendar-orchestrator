@@ -6,7 +6,7 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "app": "node app.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "@inrupt/solid-client": "^1.23.3",
