@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { setUserToken } from "./database.js";
 
-async function generateToken(email, password, webid, issuer) {
+async function generateToken(email: string, password: string, webid: string, issuer: string) {
   const token_response = await fetch(issuer + "idp/credentials/", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -14,7 +14,10 @@ async function generateToken(email, password, webid, issuer) {
     }),
   });
 
-  const { id, secret } = await token_response.json();
+  const { id, secret } = await token_response.json() as {
+    id: string,
+    secret: string,
+  };
   console.log("my id: ", id, "my secret: ", secret);
   if (id === undefined || secret === undefined) {
     return null;

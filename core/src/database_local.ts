@@ -8,7 +8,7 @@ const DB_PATH = "db.json";
 let db_parsed = {};
 
 function reloadDB() {
-  db_parsed = JSON.parse(fs.readFileSync(DB_PATH));
+  db_parsed = JSON.parse(fs.readFileSync(DB_PATH).toString());
 }
 
 function writeDB() {
@@ -21,7 +21,7 @@ if (fs.existsSync(DB_PATH)) {
   writeDB();
 }
 
-export async function setUserToken(webid, issuer, id, secret) {
+export async function setUserToken(webid: string, issuer: string, id: string, secret: string) {
   db_parsed[webid] = {
     issuer: issuer,
     token_id: id,
@@ -33,7 +33,7 @@ export async function setUserToken(webid, issuer, id, secret) {
   return true;
 }
 
-export async function setCalendarSourceUrl(webid, ics) {
+export async function setCalendarSourceUrl(webid: string, ics: string) {
   if (webid in db_parsed) {
     db_parsed[webid].ics_url = ics;
     writeDB();
@@ -44,7 +44,7 @@ export async function setCalendarSourceUrl(webid, ics) {
   }
 }
 
-export async function deleteUser(webid) {
+export async function deleteUser(webid: string) {
   if (webid in db_parsed) {
     delete db_parsed[webid];
     writeDB();
@@ -55,7 +55,7 @@ export async function deleteUser(webid) {
   }
 }
 
-export async function getUserInfo(webid) {
+export async function getUserInfo(webid: string) {
   if (webid in db_parsed) {
     const record = db_parsed[webid];
     return {
@@ -69,7 +69,7 @@ export async function getUserInfo(webid) {
   }
 }
 
-export async function userInfoState(webid) {
+export async function userInfoState(webid: string) {
   const result = await getUserInfo(webid);
 
   if (result == null) {

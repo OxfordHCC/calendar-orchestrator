@@ -34,12 +34,14 @@ To use the CLI entry, do the following:
 
 1. Install dependencies: `npm i`
 
-2. Run the entry: `npm run start`
+2. Run the entry: `npm run build && npm run start`
 
 The orchestrator will retrieve and update the calendar data in the registered users' Pods from time to time.
 
 ## As library
 
+> This is likely broken, as we moved sources into the `src` directory with TS support.
+> 
 > This is kept for historical usage. We are no longer working on this, and will remove it at some point.
 
 To use it as a library:
