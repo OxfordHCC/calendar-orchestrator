@@ -82,8 +82,6 @@ export async function deleteUser(webid: string) {
 }
 
 export async function getUserInfo(webid: string, includeConfig?: boolean): Promise<UserInfo | null> {
-  if (includeConfig == undefined)
-    includeConfig = true; //TODO: Change to false after finishing local+pod config. Or maybe no longer needed by then.
   if (webid in db_parsed) {
     const record = db_parsed[webid];
     let cal_url: string | null | undefined = undefined;

@@ -1,7 +1,9 @@
 import fetch from "node-fetch";
 import { setUserToken } from "./database.js";
+import { deleteUser } from "./database.js";
+import { setCalendarSourceUrl } from "./database.js";
 
-async function generateToken(email: string, password: string, webid: string, issuer: string) {
+export async function generateToken(email: string, password: string, webid: string, issuer: string) {
   console.log(`generateToken(${email}, ${password}, ${webid}, ${issuer})`)
   const token_response = await fetch(issuer + "idp/credentials/", {
     method: "POST",
@@ -31,4 +33,18 @@ async function generateToken(email: string, password: string, webid: string, iss
   return result;
 }
 
-export default generateToken;
+export async function revokeAccess(webid: string) {
+  const result = await deleteUser(webid);
+  console.log(result);
+
+  return result;
+}
+
+export async function updateIcs(ics: string, webid: string) {
+  const result = await setCalendarSourceUrl(webid, ics);
+  console.log(result);
+
+  return result;
+}
+
+export { updateAvailability } from './update-availability.js';

@@ -1,11 +1,7 @@
 import express from "express";
 
-import { listUsers, getUserInfo } from "./database.js";
-import generateToken from "./generate-token.js";
-import updateAvailability from "./update-availability.js";
-import updateIcs from "./update-ics.js";
-import revokeAccess from "./revoke-access.js";
-import { userInfoState } from "./database.js";
+import { listUsers, getUserInfo, userInfoState } from "./database.js";
+import { generateToken, updateAvailability, updateIcs, revokeAccess} from "./orchestrator.js";
 
 async function updateAll() {
     const users = await listUsers();

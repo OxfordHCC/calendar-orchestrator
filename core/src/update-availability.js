@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import {
   createSolidDataset,
   getPodUrlAll,
@@ -21,8 +20,8 @@ import { getAuthFetch } from './auth.js';
 import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
 import { getUserInfo } from "./database.js";
 
-async function updateAvailability(webid, issuer) {
-  const { id, secret, url } = await getUserInfo(webid);
+export async function updateAvailability(webid, issuer) {
+  const { id, secret, url } = await getUserInfo(webid, true);
   if (id, secret, url) {
     let authFetch = await getAuthFetch(id, secret, issuer);
     const calendarRdf = await convertIcsToRdf(url);
@@ -177,5 +176,3 @@ const updateAvailabilityInPod = async (webID, authFetch, rdf) => {
     return false;
   }
 };
-
-export default updateAvailability;
