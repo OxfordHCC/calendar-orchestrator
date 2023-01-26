@@ -13,7 +13,7 @@ async function updateAll() {
         const webid = user.webid;
         const info = await getUserInfo(webid);
         console.log("Updating", webid);
-        if (info.issuer) {
+        if (info && info.issuer) {
             updateAvailability(webid, info.issuer);
             console.log("Done", webid);
         } else {

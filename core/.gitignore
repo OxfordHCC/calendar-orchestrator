@@ -37,3 +37,7 @@ next-env.d.ts
 
 db.json
 dist/
+*.bak
+test.js
+test.ts
+test_script.sh

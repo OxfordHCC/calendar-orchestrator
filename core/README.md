@@ -2,7 +2,7 @@ Solid Calendar Orchestrator Core
 
 ------
 
-This directory contains the core code of the orchestrator. It also has a CLI entry (`app.js`) for it.
+This directory contains the core code of the orchestrator. It has a CLI entry (`app.js`).
 
 Currently the orchestrator contains basic but usable functionalities:
 
@@ -10,19 +10,15 @@ Currently the orchestrator contains basic but usable functionalities:
 
 2. Request token from CSS to modify user's Pod
 
-3. Store information into database
+3. Store information into database / configuration
    
-   1. If running in node.js, it is stored as a JSON file `db.json`
+   1. Basic user information (list of users, etc) is stored as a JSON file `db.json`
       
       - Using JSON for prototying & data size is small
       
       - May need optimization in the future
    
-   2. (Deprecated) If otherwise, it is stored into a prisma database
-      
-      - This is kept for now for historical reasons -- it used to be a part of the calendar main app
-      
-      - Will be removed in the future because it does not fit orchestrator's role
+   2- User-side configuration (e.g. calendar URL) is stored into user's Pod (`calendar_orchestrator/config.ttl`)
 
 4- Update user calendar data in their Pods
 
@@ -37,20 +33,6 @@ To use the CLI entry, do the following:
 2. Run the entry: `npm run build && npm run start`
 
 The orchestrator will retrieve and update the calendar data in the registered users' Pods from time to time.
-
-## As library
-
-> This is likely broken, as we moved sources into the `src` directory with TS support.
-> 
-> This is kept for historical usage. We are no longer working on this, and will remove it at some point.
-
-To use it as a library:
-
-1. Install dependencies in your application
-
-2. (Optional) Generate prisma schema under this directory: `npx prisma generate`
-
-3. Set up environmental variable for `DATABASE_URL`
 
 # API
 
