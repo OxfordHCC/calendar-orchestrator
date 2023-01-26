@@ -1,12 +1,12 @@
 import express from "express";
 
 import {
-    generateToken,
+    registerUser,
     updateAvailability,
-    updateIcs,
-    revokeAccess,
+    updateCalendarUrl,
+    deleteUser,
     userInfoState,
-    updateAll,
+    updateCalendarAll,
 } from "./orchestrator.js";
 
 const app = express();
@@ -40,7 +40,7 @@ app.post('/user', async (req, res) => {
     const password = req_content.password;
     const cal_url = req_content.cal_url;
     if (email && password && webid && issuer) {
-        const res1 = await generateToken(email, password, webid, issuer);
+        const res1 = await registerUser(email, password, webid, issuer);
         if (!res1) {
             res.status(401);
             res.json({ error: "Could not generate token" });
@@ -50,7 +50,7 @@ app.post('/user', async (req, res) => {
         return;
     }
     if (webid && cal_url) {
-        const res2 = await updateIcs(cal_url, webid);
+        const res2 = await updateCalendarUrl(cal_url, webid);
         if (!res2) {
             res.status(401);
             res.json({ error: "Could not set calendar URL" });
@@ -76,7 +76,7 @@ app.post('/user', async (req, res) => {
 app.delete('/user', async (req, res) => {
     const req_content = req.body;
     const webid = req_content.webid;
-    const result = await revokeAccess(webid);
+    const result = await deleteUser(webid);
     if (result) {
         res.send(result);
     } else {
@@ -86,7 +86,7 @@ app.delete('/user', async (req, res) => {
 });
 
 app.get('/status', async (req, res) => {
-    const result = await updateAll();
+    const result = await updateCalendarAll();
     res.send(result);
 });
 
@@ -94,5 +94,5 @@ app.listen(port, () => {
     console.log(`Orchestrator app listening on port ${port}`);
 });
 
-updateAll();
-setInterval(updateAll, update_interval);
+updateCalendarAll();
+setInterval(updateCalendarAll, update_interval);

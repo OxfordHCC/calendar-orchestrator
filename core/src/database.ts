@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import { getPodUrlAll } from "@inrupt/solid-client";
-import { getAuthFetch } from './auth.js';
+import { getAuthFetch } from './solid-helper.js';
 import { retrieveConfig, updateConfig, deleteConfig } from './config-pod.js';
 
 const DB_PATH = "db.json";

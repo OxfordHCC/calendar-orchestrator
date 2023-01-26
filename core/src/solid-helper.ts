@@ -1,8 +1,32 @@
+import fetch from "node-fetch";
+
 import {
   createDpopHeader,
   generateDpopKeyPair,
   buildAuthenticatedFetch,
 } from "@inrupt/solid-client-authn-core";
+
+
+export async function generateToken(email: string, password: string, issuer: string) {
+  const token_response = await fetch(issuer + "idp/credentials/", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    // The email/password fields are those of your account.
+    // The name field will be used when generating the ID of your token.
+    body: JSON.stringify({
+      email: email,
+      password: password,
+      name: "my-token",
+    }),
+  });
+
+  const { id, secret } = await token_response.json() as {
+    id?: string,
+    secret?: string,
+  };
+
+  return { id, secret };
+}
 
 export async function getAuthFetch(id: string, secret: string, issuer: string) {
   const dpopKey = await generateDpopKeyPair();

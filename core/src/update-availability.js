@@ -16,7 +16,7 @@ import {
   setAgentResourceAccess,
 } from "@inrupt/solid-client";
 
-import { getAuthFetch } from './auth.js';
+import { getAuthFetch } from './solid-helper.js';
 import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
 import { getUserInfo } from "./database.js";
 
