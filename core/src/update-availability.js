@@ -1,10 +1,5 @@
 import fetch from "node-fetch";
 import {
-  createDpopHeader,
-  generateDpopKeyPair,
-  buildAuthenticatedFetch,
-} from "@inrupt/solid-client-authn-core";
-import {
   createSolidDataset,
   getPodUrlAll,
   getSolidDataset,
@@ -22,13 +17,14 @@ import {
   setAgentResourceAccess,
 } from "@inrupt/solid-client";
 
+import { getAuthFetch } from './auth.js';
 import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
 import { getUserInfo } from "./database.js";
 
 async function updateAvailability(webid, issuer) {
   const { id, secret, url } = await getUserInfo(webid);
   if (id, secret, url) {
-    let authFetch = await getAccessToken(id, secret, issuer);
+    let authFetch = await getAuthFetch(id, secret, issuer);
     const calendarRdf = await convertIcsToRdf(url);
 
     let success = await updateAvailabilityInPod(webid, authFetch, calendarRdf);
@@ -181,29 +177,5 @@ const updateAvailabilityInPod = async (webID, authFetch, rdf) => {
     return false;
   }
 };
-
-const getAccessToken = async (id, secret, issuer) => {
-  const dpopKey = await generateDpopKeyPair();
-  // Both the ID and the secret need to be form-encoded.
-  const authString = `${encodeURIComponent(id)}:${encodeURIComponent(secret)}`;
-  const tokenUrl = issuer + ".oidc/token";
-  const access_token_response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      // The header needs to be in base64 encoding.
-      authorization: `Basic ${Buffer.from(authString).toString("base64")}`,
-      "content-type": "application/x-www-form-urlencoded",
-      dpop: await createDpopHeader(tokenUrl, "POST", dpopKey),
-    },
-    body: "grant_type=client_credentials&scope=webid",
-  });
-
-  const { access_token: accessToken } = await access_token_response.json();
-  const authFetch = await buildAuthenticatedFetch(fetch, accessToken, {
-    dpopKey,
-  });
-  return authFetch;
-};
-
 
 export default updateAvailability;

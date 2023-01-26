@@ -12,10 +12,10 @@ async function updateAll() {
     users.map(async (user) => {
         const webid = user.webid;
         const info = await getUserInfo(webid);
-        console.log("Dealing with", webid);
+        console.log("Updating", webid);
         if (info.issuer) {
             updateAvailability(webid, info.issuer);
-            console.log(webid);
+            console.log("Done", webid);
         } else {
             console.warn(`No issuer field for ${webid}. Skipping`);
         }
