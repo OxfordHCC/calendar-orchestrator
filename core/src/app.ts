@@ -1,23 +1,13 @@
 import express from "express";
 
-import { listUsers, getUserInfo, userInfoState } from "./database.js";
-import { generateToken, updateAvailability, updateIcs, revokeAccess} from "./orchestrator.js";
-
-async function updateAll() {
-    const users = await listUsers();
-    users.map(async (user) => {
-        const webid = user.webid;
-        const info = await getUserInfo(webid);
-        console.log("Updating", webid);
-        if (info && info.issuer) {
-            updateAvailability(webid, info.issuer);
-            console.log("Done", webid);
-        } else {
-            console.warn(`No issuer field for ${webid}. Skipping`);
-        }
-    });
-    return users;
-}
+import {
+    generateToken,
+    updateAvailability,
+    updateIcs,
+    revokeAccess,
+    userInfoState,
+    updateAll,
+} from "./orchestrator.js";
 
 const app = express();
 const port = 3000;

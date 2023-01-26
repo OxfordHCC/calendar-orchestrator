@@ -1,7 +1,16 @@
 import fetch from "node-fetch";
-import { setUserToken } from "./database.js";
-import { deleteUser } from "./database.js";
-import { setCalendarSourceUrl } from "./database.js";
+
+import {
+  setUserToken,
+  deleteUser,
+  setCalendarSourceUrl,
+  listUsers,
+  getUserInfo,
+} from "./database.js";
+export { userInfoState } from "./database.js";
+
+import { updateAvailability } from './update-availability.js';
+export { updateAvailability } from './update-availability.js';
 
 export async function generateToken(email: string, password: string, webid: string, issuer: string) {
   console.log(`generateToken(${email}, ${password}, ${webid}, ${issuer})`)
@@ -47,4 +56,18 @@ export async function updateIcs(ics: string, webid: string) {
   return result;
 }
 
-export { updateAvailability } from './update-availability.js';
+export async function updateAll() {
+    const users = await listUsers();
+    users.map(async (user) => {
+        const webid = user.webid;
+        const info = await getUserInfo(webid);
+        console.log("Updating", webid);
+        if (info && info.issuer) {
+            updateAvailability(webid, info.issuer);
+            console.log("Done", webid);
+        } else {
+            console.warn(`No issuer field for ${webid}. Skipping`);
+        }
+    });
+    return users;
+}
