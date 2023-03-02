@@ -1,6 +1,4 @@
-Solid Calendar Orchestrator Core
-
-------
+# Solid Calendar Orchestrator Core
 
 This directory contains the core code of the orchestrator. It has a CLI entry (`app.js`).
 
@@ -22,20 +20,19 @@ Currently the orchestrator contains basic but usable functionalities:
 
 4- Update user calendar data in their Pods
 
-# Usage
+## Usage
 
-## From CLI
-
-To use the CLI entry, do the following:
+### From CLI
 
 1. Install dependencies: `npm i`
 
-2. Run the entry: `npm run build && npm run start`
+2. Run the service: `npm run build && npm run start`
 
-The orchestrator will retrieve and update the calendar data in the registered users' Pods from time to time.
+The orchestrator will retrieve and update the calendar data in the *registered* users' Pods from time to time. The configuration is fetched from users' Pods (location above).
 
-# API
+To register users, either use the API or use the companion [Configure-er App](../app).
 
-> TODO.
-> 
-> See code for now.
+## API
+
+See [swagger.yaml](swagger.yaml) for the documented API.
+You may use any Swagger UI for viewing it, e.g.[the official example](https://swagger.io/tools/swagger-ui/).

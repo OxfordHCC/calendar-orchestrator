@@ -1,0 +1,115 @@
+penapi: 3.0.0
+info:
+  title: Calendar Orchestrator
+  description: The Orchestrator component for the Solid Calendar (aka Knoodle).
+  version: "0.1"
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /:
+    get:
+      summary: Server running indicator
+      description: Returns a dummy information indicating the server is running
+      responses:
+        '200':    # status code
+          description: A welcome message
+          content:
+            text/plain; charset=utf-8:
+              schema: 
+                type: string
+  /user:
+    get:
+      summary: Returns user information.
+      parameters:
+        - in: query
+          name: webid
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  user:
+                    type: string
+                  ics:
+                    type: string
+        '500':
+          description: Error message
+    post:
+      summary: Register or update a user information
+      requestBody:
+        description: |
+          User information in different combinations:
+          
+          register: webid + issuer + password + email;
+          
+          update calendar URL: webid + cal_url;
+          
+          update availability: webid + issuer;
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webid:
+                  type: string
+                issuer:
+                  type: string
+                email:
+                  type: string
+                password:
+                  typg: string
+                cal_url:
+                  type: string
+              required:
+                - webid
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Execution failed
+        '500':
+          description: Unknown error or invalid request
+    delete:
+      summary: Delete a registered user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webid:
+                  type: string
+              required:
+                - webid
+      responses:
+        '200':
+          description: Success, or user not found
+        '500':
+          description: Unknown error
+  /status:
+    get:
+      summary: Update all users' calendar data
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  schema: object
+                  properties:
+                    webid:
+                      type: string
