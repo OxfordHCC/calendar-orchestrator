@@ -20,9 +20,7 @@ Currently the orchestrator contains basic but usable functionalities:
 
 4- Update user calendar data in their Pods
 
-## Usage
-
-### From CLI
+## Running service
 
 1. Install dependencies: `npm i`
 
@@ -31,6 +29,60 @@ Currently the orchestrator contains basic but usable functionalities:
 The orchestrator will retrieve and update the calendar data in the *registered* users' Pods from time to time. The configuration is fetched from users' Pods (location above).
 
 To register users, either use the API or use the companion [Configure-er App](../app).
+
+## Configure
+
+Note the software is in development, and APIs are subject to change. The recommended way is to use the companion App to configure.
+
+### Use the companion App
+
+This is the recommended way. Set up the [App](../app) by following its document, and navigate to the browser to use.
+
+### CLI example for using API
+
+Here are some example of using the API from cli.
+
+> They use HTTPie, a more human-friendly cli HTTP client. We give one example also in curl; and the rest is similar.
+
+Assume the following information:
+
+- Orchestrator url: `http://localhost:3000`
+- Webid: `https://my.pod/user1/profile/card#me`
+- Issuer: `https://my.pod/`
+- Solid login
+   - username: `user1_email@a.b`
+   - password: `mypassword`
+- Calendar (ics) url: `https://some.service/my_calendar.ics`
+
+#### Register a user
+
+```
+http POST localhost:3000/user webid=https://my.pod/user1/profile/card#me issuer=https://my.pod/ email=user1_email@a.b password=mypassword
+```
+
+Or (using curl)
+
+```
+curl -H “Content-Type: application/json” -X POST -d webid=https://my.pod/user1/profile/card#me -d issuer=https://my.pod/ -d email=user1_email@a.b -d password=mypassword http://localhost:3000
+```
+
+#### Get user information
+
+```
+http GET localhost:3000/user webid=https://my.pod/user1/profile/card#me
+```
+
+#### Set user's calendar URL
+
+```
+http POST localhost:3000/user webid=https://my.pod/user1/profile/card#me issuer=https://my.pod/ cal_url=https://some.service/my_calendar.ics
+```
+
+#### Update user's calendar data
+
+```
+http POST localhost:3000/user webid=https://my.pod/user1/profile/card#me issuer=https://my.pod/
+```
 
 ## API
 
