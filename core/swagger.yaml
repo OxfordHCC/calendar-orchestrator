@@ -47,11 +47,11 @@ paths:
         description: |
           User information in different combinations:
           
-          register: webid + issuer + password + email;
+          register: webid [+ issuer] + password + email;
           
           update calendar URL: webid + cal_url;
           
-          update availability: webid + issuer;
+          update availability: webid [+ issuer];
         required: true
         content:
           application/json:

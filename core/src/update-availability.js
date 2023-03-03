@@ -16,11 +16,12 @@ import {
   setAgentResourceAccess,
 } from "@inrupt/solid-client";
 
-import { getAuthFetch } from './solid-helper.js';
+import { getAuthFetch, getOidcIssuer } from './solid-helper.js';
 import { convertIcsToRdf } from "./ics-to-rdf-converter.js";
 import { getUserInfo } from "./database.js";
 
 export async function updateAvailability(webid, issuer) {
+  issuer = await getOidcIssuer(webid, issuer);
   const { id, secret, url } = await getUserInfo(webid, true);
   if (id, secret, url) {
     let authFetch = await getAuthFetch(id, secret, issuer);

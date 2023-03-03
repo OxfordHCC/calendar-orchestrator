@@ -1,4 +1,4 @@
-import { generateToken } from './solid-helper.js';
+import { generateToken, getOidcIssuer } from './solid-helper.js';
 
 import {
     setUserToken,
@@ -14,7 +14,10 @@ export {
 import { updateAvailability } from './update-availability.js';
 export { updateAvailability } from './update-availability.js';
 
-export async function registerUser(email: string, password: string, webid: string, issuer: string) {
+
+export async function registerUser(email: string, password: string, webid: string, issuer?: string) {
+    issuer = await getOidcIssuer(webid, issuer);
+
     const { id, secret } = await generateToken(email, password, issuer);
 
     if (id === undefined || secret === undefined) {
@@ -34,11 +37,11 @@ export async function updateCalendarAll() {
         const webid = user.webid;
         const info = await getUserInfo(webid);
         console.log("Updating", webid);
-        if (info && info.issuer) {
+        if (info) {
             updateAvailability(webid, info.issuer);
             console.log("Done", webid);
         } else {
-            console.warn(`No issuer field for ${webid}. Skipping`);
+            console.error(`No user info for ${webid}. Skipping`);
         }
     });
     return users;

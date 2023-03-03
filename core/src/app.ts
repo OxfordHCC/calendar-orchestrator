@@ -39,7 +39,7 @@ app.post('/user', async (req, res) => {
     const email = req_content.email;
     const password = req_content.password;
     const cal_url = req_content.cal_url;
-    if (email && password && webid && issuer) {
+    if (email && password && webid) {
         const res1 = await registerUser(email, password, webid, issuer);
         if (!res1) {
             res.status(401);
@@ -59,7 +59,7 @@ app.post('/user', async (req, res) => {
         }
         return;
     }
-    if (webid && issuer) {
+    if (webid) {
         const res3 = updateAvailability(webid, issuer);
         if (!res3) {
             res.status(500);

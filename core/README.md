@@ -54,6 +54,8 @@ Assume the following information:
    - password: `mypassword`
 - Calendar (ics) url: `https://some.service/my_calendar.ics`
 
+Note the `issuer` field is always optional.
+
 #### Register a user
 
 ```

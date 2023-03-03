@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import { getPodUrlAll } from "@inrupt/solid-client";
-import { getAuthFetch } from './solid-helper.js';
+import { getAuthFetch, getOidcIssuer } from './solid-helper.js';
 import { retrieveConfig, updateConfig, deleteConfig } from './config-pod.js';
 
 const DB_PATH = "db.json";
@@ -86,7 +86,8 @@ export async function getUserInfo(webid: string, includeConfig?: boolean): Promi
         const record = db_parsed[webid];
         let cal_url: string | null | undefined = undefined;
         if (includeConfig) {
-            let authFetch = await getAuthFetch(record.token_id, record.token_secret, record.issuer);
+            const issuer = await getOidcIssuer(webid, record.issuer);
+            let authFetch = await getAuthFetch(record.token_id, record.token_secret, issuer);
             const pod = (await getPodUrlAll(webid))[0];
             await retrieveConfig(pod, authFetch)
             .then((conf) => {
