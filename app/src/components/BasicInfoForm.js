@@ -50,7 +50,6 @@ export default function BasicInfoForm({ trigger }) {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              required
               id="provider"
               name="provider"
               label="WebID Provider"
