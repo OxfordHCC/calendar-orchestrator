@@ -37,7 +37,7 @@ export async function getOidcIssuer(webid: string, issuer?: string) {
 }
 
 export async function generateToken(email: string, password: string, issuer: string) {
-  const token_response = await fetch(issuer + "idp/credentials/", {
+  const token_response = await fetch(withoutTrailingSlash(issuer) + "/idp/credentials/", {
     method: "POST",
     headers: { "content-type": "application/json" },
     // The email/password fields are those of your account.
