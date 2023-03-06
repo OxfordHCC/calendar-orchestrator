@@ -5,17 +5,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-export default function BasicInfoForm({ trigger }) {
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+export default function BasicInfoForm({ inputValues, setValues }) {
 
-    const data = new FormData(event.currentTarget);
-    let orchestrator_url = data.get("orchestrator_url");
-    let webid = data.get("webid");
-    let provider = data.get("provider");
-
-    trigger(orchestrator_url, webid, provider);
-  };
+  const handleUpdate = async (newValue) => {
+    setValues({
+      ...inputValues,
+      ...newValue,
+    });
+  }
 
   return (
     <>
@@ -23,12 +20,13 @@ export default function BasicInfoForm({ trigger }) {
         Want to configure your availability calendar? Enter your WebID and Pod
         provider information here. Then we can go through relevant steps for it.
       </Typography>
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box component="form">
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <TextField
               required
-              defaultValue="http://localhost:3000"
+              value={inputValues.orchestratorUrl}
+              onChange={(event) => {handleUpdate({orchestratorUrl: event.target.value})}}
               id="orchestrator_url"
               name="orchestrator_url"
               label="Orchestrator URL"
@@ -40,6 +38,8 @@ export default function BasicInfoForm({ trigger }) {
           <Grid item xs={12}>
             <TextField
               required
+              value={inputValues.webid}
+              onChange={(event) => {handleUpdate({webid: event.target.value})}}
               id="webid"
               name="webid"
               label="WebID"
@@ -50,6 +50,8 @@ export default function BasicInfoForm({ trigger }) {
           </Grid>
           <Grid item xs={12}>
             <TextField
+              value={inputValues.issuer}
+              onChange={(event) => {handleUpdate({issuer: event.target.value})}}
               id="provider"
               name="provider"
               label="WebID Provider"
@@ -58,9 +60,6 @@ export default function BasicInfoForm({ trigger }) {
               autoComplete="current-provider"
               variant="standard"
             />
-            <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
-              Submit Basic Info
-            </Button>
           </Grid>
         </Grid>
       </Box>

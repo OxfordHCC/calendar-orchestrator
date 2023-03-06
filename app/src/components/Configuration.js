@@ -25,14 +25,17 @@ export default function Configuration() {
   const [activeStep, setActiveStep] = useState(0);
   const { session } = useSession();
   const solidFetch = session.fetch;
-  const [orchestratorUrl, setOrchestratorUrl] = useState("orchestrator_url");
-  const [webID, setWebID] = useState("webid");
-  const [issuer, setIssuer] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const [configStatus, setConfigStatus] = useState({
     user: false,
     ics: false,
     updating: false,
+  });
+
+  const [basicInfo, setBasicInfo] = useState({
+    orchestratorUrl: "http://localhost:3000",
+    webid: "",
+    issuer: "",
   });
 
   useEffect(() => {
@@ -45,14 +48,17 @@ export default function Configuration() {
           solid: "http://www.w3.org/ns/solid/terms#",
           "solid:oidcIssuer": { "@type": "@id" },
         },
-        "@id": webID,
+        "@id": basicInfo.webid,
       };
 
-      const result = await getRDFasJson(webID, frame, solidFetch);
+      const result = await getRDFasJson(basicInfo.webid, frame, solidFetch);
       const oidcIssuer = result["solid:oidcIssuer"];
-      setIssuer(oidcIssuer);
+      setBasicInfo({
+        ...basicInfo,
+        issuer: oidcIssuer,
+      })
     }
-    if (!issuer && session.info.isLoggedIn) {
+    if (!basicInfo.issuer && session.info.isLoggedIn) {
       getIssuer();
       getConfigState();
     }
@@ -61,8 +67,8 @@ export default function Configuration() {
   const getConfigState = async () => {
     const response = await fetch(
       "/api/config-state?" + new URLSearchParams({
-        orchestrator_url: orchestratorUrl,
-        webid: webID
+        orchestrator_url: basicInfo.orchestratorUrl,
+        webid: basicInfo.webid
       }).toString()
     );
     const data = await response.json();
@@ -82,9 +88,9 @@ export default function Configuration() {
     const response = await fetch("/api/update-ics", {
       method: "PUT",
       body: JSON.stringify({
-        orchestrator_url: orchestratorUrl,
+        orchestrator_url: basicInfo.orchestratorUrl,
         ics: ics,
-        webid: webID,
+        webid: basicInfo.webid,
       }),
     });
 
@@ -100,8 +106,8 @@ export default function Configuration() {
     const response = await fetch("/api/revoke-access", {
       method: "DELETE",
       body: JSON.stringify({
-        orchestrator_url: orchestratorUrl,
-        webid: webID,
+        orchestrator_url: basicInfo.orchestratorUrl,
+        webid: basicInfo.webid,
       }),
     });
 
@@ -113,23 +119,17 @@ export default function Configuration() {
     const response_text = await response.json();
   };
 
-  const storeSolidInfo = async (orchestrator_url, webid, provider) => {
-    setOrchestratorUrl(orchestrator_url);
-    setWebID(webid);
-    setIssuer(provider);
-  };
-
   const generateToken = async (email, password) => {
     const response = await fetch("/api/generate-token", {
       method: "POST",
       // The email/password fields are those of your account.
       // The name field will be used when generating the ID of your token.
       body: JSON.stringify({
-        orchestrator_url: orchestratorUrl,
-        webid: webID,
+        orchestrator_url: basicInfo.orchestratorUrl,
+        webid: basicInfo.webid,
         email: email,
         password: password,
-        issuer: issuer,
+        issuer: basicInfo.issuer,
         name: "my-token",
       }),
     });
@@ -153,9 +153,9 @@ export default function Configuration() {
     const response = await fetch("/api/update-availability", {
       method: "PUT",
       body: JSON.stringify({
-        orchestrator_url: orchestratorUrl,
-        webid: webID,
-        issuer: issuer,
+        orchestrator_url: basicInfo.orchestratorUrl,
+        webid: basicInfo.webid,
+        issuer: basicInfo.issuer,
       }),
     });
     setConfigStatus({ ...configStatus, updating: false });
@@ -178,7 +178,7 @@ export default function Configuration() {
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <BasicInfoForm trigger={storeSolidInfo} />;
+        return <BasicInfoForm inputValues={basicInfo} setValues={setBasicInfo} />;
       case 1:
         return <SignUpForm trigger={generateToken} />;
       case 2:
