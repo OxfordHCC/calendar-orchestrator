@@ -3,11 +3,11 @@
  * That currently contains the calendar URL, but will contain more (e.g. transformation).
  */
 
-import { getSolidDataset, saveSolidDatasetAt, deleteSolidDataset, getThingAll, getThing, getStringNoLocale, createSolidDataset, buildThing, createThing, setThing } from "@inrupt/solid-client";
+import { getSolidDataset, saveSolidDatasetAt, deleteSolidDataset, getThingAll, getThing, getStringNoLocale, createSolidDataset, buildThing, createThing, setThing, addStringNoLocale, getStringNoLocaleAll } from "@inrupt/solid-client";
 import { universalAccess } from "@inrupt/solid-client";
 
 export interface Config {
-    cal: string,
+    calendars: string[],
 }
 
 const N = 'urn:cal:orchestrator#';
@@ -21,21 +21,20 @@ function configLocation(pod: string) {
     return `${pod}calendar_orchestrator/config.ttl`;
 }
 
-export async function retrieveConfig(pod: string, authFetch) {
+export async function retrieveConfig(pod: string, authFetch): Promise<Config> {
     const myDataset = await getSolidDataset(
         configLocation(pod),
         { fetch: authFetch }
     );
     const things = getThingAll(myDataset);
-    let cal_url;
+    let cal_urls: string[] = [];
     for (const thing of things) {
-        const cal = getStringNoLocale(thing, P_CAL)
-        if (cal) {
-            cal_url = cal;
-            break;
+        const calendars = getStringNoLocaleAll(thing, P_CAL);
+        for (const cal of calendars) {
+            cal_urls.push(cal);
         }
     }
-    return {cal: cal_url};
+    return {calendars: cal_urls};
 }
 
 export async function updateConfig(pod: string, config: Config, authFetch, create?: boolean) {
@@ -58,9 +57,9 @@ export async function updateConfig(pod: string, config: Config, authFetch, creat
         myDataset = await getSolidDataset(configLocation(pod), { fetch: authFetch });
         configThing = getThing(myDataset, `${configLocation(pod)}#${CONF_THING}`);
     }
-    configThing = buildThing(configThing)
-        .setStringNoLocale(P_CAL, config.cal)
-        .build();
+    for (const cal of config.calendars) {
+        addStringNoLocale(configThing, P_CAL, cal)
+    }
     myDataset = setThing(myDataset, configThing);
     myDataset = await save();
     return myDataset;

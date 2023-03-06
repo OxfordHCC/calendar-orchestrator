@@ -28,7 +28,7 @@ export interface UserInfo {
     issuer: string,
     id: string,
     secret: string,
-    url?: string | null,
+    url?: string[] | null,
 }
 
 export async function setUserToken(webid: string, issuer: string, id: string, secret: string) {
@@ -49,7 +49,7 @@ export async function setCalendarSourceUrl(webid: string, ics: string) {
             const { id, secret, issuer, url } = userInfo;
             let authFetch = await getAuthFetch(id, secret, issuer);
             const pod = (await getPodUrlAll(webid))[0];
-            const conf = {cal: ics};
+            const conf = {calendars: [ics]};
             await updateConfig(pod, conf, authFetch, url == null);
             return true;
         }
@@ -84,14 +84,14 @@ export async function deleteUser(webid: string) {
 export async function getUserInfo(webid: string, includeConfig?: boolean): Promise<UserInfo | null> {
     if (webid in db_parsed) {
         const record = db_parsed[webid];
-        let cal_url: string | null | undefined = undefined;
+        let cal_url: string[] | null | undefined = undefined;
         if (includeConfig) {
             const issuer = await getOidcIssuer(webid, record.issuer);
             let authFetch = await getAuthFetch(record.token_id, record.token_secret, issuer);
             const pod = (await getPodUrlAll(webid))[0];
             await retrieveConfig(pod, authFetch)
             .then((conf) => {
-                cal_url = conf.cal;
+                cal_url = conf.calendars;
             })
             .catch((e) => {
                 console.error(`Failed to retrieve config in Pod... Likely it does not exist`);

@@ -98,8 +98,19 @@ async function jsonToRdf(calendar) {
   return "";
 }
 
-export async function convertIcsToRdf(ics) {
-  const calendarJson = await IcsToJson(ics);
+export async function convertIcsToRdf(ics_list) {
+
+  const eventsCombined = [], nameCombined = [];
+  for (const ics of ics_list) {
+    const calendarJson = await IcsToJson(ics);
+    nameCombined.push(calendarJson.name);
+    eventsCombined.push(...calendarJson.events);
+  }
+
+  const calendarJson = {
+    name: `Combined of [${nameCombined.join(", ")}]`,
+    events: eventsCombined,
+  };
 
   const events = calendarJson.events;
   console.log(events);
