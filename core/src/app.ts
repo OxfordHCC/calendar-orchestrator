@@ -50,7 +50,7 @@ app.post('/user', async (req, res) => {
         return;
     }
     if (webid && cal_url) {
-        const res2 = await updateCalendarUrl(cal_url, webid);
+        const res2 = await updateCalendarUrl(webid, cal_url);
         if (!res2) {
             res.status(401);
             res.json({ error: "Could not set calendar URL" });
