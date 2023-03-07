@@ -49,6 +49,7 @@ app.post('/user', async (req, res) => {
         }
         return;
     }
+
     if (webid && cal_url) {
         const res2 = await updateCalendarUrl(webid, cal_url);
         if (!res2) {

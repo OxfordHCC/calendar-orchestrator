@@ -3,7 +3,7 @@
  * That currently contains the calendar URL, but will contain more (e.g. transformation).
  */
 
-import { getSolidDataset, saveSolidDatasetAt, deleteSolidDataset, getThingAll, getThing, getStringNoLocale, createSolidDataset, buildThing, createThing, setThing, addStringNoLocale, getStringNoLocaleAll } from "@inrupt/solid-client";
+import { getSolidDataset, saveSolidDatasetAt, deleteSolidDataset, getThingAll, getThing, getStringNoLocale, createSolidDataset, buildThing, createThing, setThing, addStringNoLocale, getStringNoLocaleAll, removeAll } from "@inrupt/solid-client";
 import { universalAccess } from "@inrupt/solid-client";
 
 export interface Config {
@@ -56,9 +56,10 @@ export async function updateConfig(pod: string, config: Config, authFetch, creat
     } else {
         myDataset = await getSolidDataset(configLocation(pod), { fetch: authFetch });
         configThing = getThing(myDataset, `${configLocation(pod)}#${CONF_THING}`);
+        configThing = removeAll(configThing, P_CAL);
     }
     for (const cal of config.calendars) {
-        addStringNoLocale(configThing, P_CAL, cal)
+        configThing = addStringNoLocale(configThing, P_CAL, cal)
     }
     myDataset = setThing(myDataset, configThing);
     myDataset = await save();

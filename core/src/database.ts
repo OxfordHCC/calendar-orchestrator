@@ -42,14 +42,17 @@ export async function setUserToken(webid: string, issuer: string, id: string, se
     return true;
 }
 
-export async function setCalendarSourceUrl(webid: string, ics: string) {
+export async function setCalendarSourceUrl(webid: string, ics: string[]|string) {
     if (webid in db_parsed) {
         const userInfo = await getUserInfo(webid, true);
         if (userInfo) {
             const { id, secret, issuer, url } = userInfo;
             let authFetch = await getAuthFetch(id, secret, issuer);
             const pod = (await getPodUrlAll(webid))[0];
-            const conf = {calendars: [ics]};
+            if (!Array.isArray(ics)) {
+                ics = [ics];
+            }
+            const conf = {calendars: ics};
             await updateConfig(pod, conf, authFetch, url == null);
             return true;
         }
