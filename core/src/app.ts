@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 import {
     registerUser,
@@ -13,6 +14,7 @@ const app = express();
 const port = 3000;
 const update_interval = 4 * 60 * 60 * 1000; // 4 hours
 
+app.use(cors());
 app.use(express.json()); // for parsing application/json
 
 app.get('/', (req, res) => {
