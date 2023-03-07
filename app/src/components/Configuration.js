@@ -11,7 +11,7 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import OneLineForm from "./OneLineForm";
+import CalendarInfoForm from "./CalendarInfoForm";
 import Review from "./ConfigReview";
 import SignUpForm from "./SignUpForm";
 import { useSnackbar } from "notistack";
@@ -37,6 +37,10 @@ export default function Configuration() {
     webid: "",
     issuer: "",
   });
+
+  const [calendarInfo, setCalendarInfo] = useState({
+    calendars: [],
+  })
 
   useEffect(() => {
     async function getIssuer() {
@@ -78,18 +82,20 @@ export default function Configuration() {
     }
   };
 
-  const updateIcs = async (ics) => {
-    if (!ics.endsWith(".ics")) {
-      enqueueSnackbar("Invalid .ics url (url should end with .ics)", {
-        variant: "error",
-      });
-      return;
+  const updateIcs = async () => {
+    for (const ics of calendarInfo.calendars) {
+      if (!ics.endsWith(".ics")) {
+        enqueueSnackbar("Invalid .ics url (url should end with .ics)", {
+          variant: "error",
+        });
+        return;
+      }
     }
     const response = await fetch("/api/update-ics", {
       method: "PUT",
       body: JSON.stringify({
         orchestrator_url: basicInfo.orchestratorUrl,
-        ics: ics,
+        ics: calendarInfo.calendars,
         webid: basicInfo.webid,
       }),
     });
@@ -183,22 +189,11 @@ export default function Configuration() {
         return <SignUpForm trigger={generateToken} />;
       case 2:
         return (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Update .ics
-            </Typography>
-            <Typography variant="subtitle1">
-              Paste your secret address in iCal format. You can find it it your
-              google calendar settings.
-            </Typography>
-            <OneLineForm
-              id="secret"
-              label="secret address in iCal format"
-              trigger={updateIcs}
-              required={true}
-              buttonText={"Update"}
-            />
-          </>
+          <CalendarInfoForm
+            trigger={updateIcs}
+            inputValues={calendarInfo}
+            setValues={setCalendarInfo}
+          />
         );
       case 3:
         return (
