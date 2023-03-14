@@ -10,9 +10,12 @@ function callApi(endpoint, method, data) {
                 body: JSON.stringify(data),
             })
                 .then((response) => {
-                    resolve(response.body);
-                })
-                .catch((error) => {
+                    if (response.ok) {
+                        resolve(response.body);
+                    } else {
+                        reject(`${response.status}: ${response.body}`);
+                    }
+                }, (error) => {
                     reject(error);
                 });
         }
