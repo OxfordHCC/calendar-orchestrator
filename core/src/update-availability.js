@@ -32,7 +32,7 @@ export async function updateAvailability(webid, issuer) {
       return calendarRdf;
       // response.status(200).json(calendarRdf);
     } else {
-      return undefined;
+      throw new Error("Failed to update availability in Pod");
     }
   } else {
     console.log("Something wrong updating availability...");

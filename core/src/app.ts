@@ -1,4 +1,6 @@
 import express from "express";
+import { Request, Response} from "express";
+
 import cors from "cors";
 
 import {
@@ -22,19 +24,14 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/user', async (req, res) => {
+app.get('/user', async (req: Request, res: Response) => {
     const req_content = req.params;
     const webid = req_content.webid;
     const result = await userInfoState(webid);
-    if (!result) {
-        res.status(500);
-        res.send(result);
-        return
-    }
     res.send(result);
 });
 
-app.post('/user', async (req, res) => {
+app.post('/user', async (req: Request, res: Response) => {
     const req_content = req.body;
     const webid = req_content.webid;
     const issuer = req_content.issuer;
@@ -43,37 +40,44 @@ app.post('/user', async (req, res) => {
     const cal_url = req_content.cal_url;
     if (email && password && webid) {
         const res1 = await registerUser(email, password, webid, issuer);
-        if (!res1) {
-            res.status(401);
+        if (res1 == null) {
+            res.status(500);
             res.json({ error: "Could not generate token" });
+        } else if (!res1) {
+            res.status(500);
+            res.json({ error: "Failed to store user to database" });
         } else {
             res.send();
         }
         return;
     }
-
     if (webid && cal_url) {
         const res2 = await updateCalendarUrl(webid, cal_url);
-        if (!res2) {
-            res.status(401);
-            res.json({ error: "Could not set calendar URL" });
+        if (res2 == undefined) {
+            res.status(500);
+            res.send("User not registered");
         } else {
             res.send();
         }
         return;
     }
     if (webid) {
-        const res3 = updateAvailability(webid, issuer);
-        if (!res3) {
+        try {
+            const res3: string | undefined = await updateAvailability(webid, issuer);
+            if (res3 == undefined) {
+                res.status(500);
+                res.send("User not registered");
+            } else {
+                res.send();
+            }
+        } catch (e) {
             res.status(500);
-            res.send(res3);
-        } else {
-            res.send();
+            res.send((e as Error).message);
         }
         return;
     }
-    res.status(500);
-    res.send("Invalid request -- insufficient or incorrect data");
+    res.status(400);
+    res.send("Invalid request: insufficient or incorrect data");
 });
 
 app.delete('/user', async (req, res) => {
@@ -82,6 +86,9 @@ app.delete('/user', async (req, res) => {
     const result = await deleteUser(webid);
     if (result) {
         res.send(result);
+    } else if (result == undefined) {
+            res.status(500);
+            res.send("User not registered");
     } else {
         res.status(500);
         res.send();

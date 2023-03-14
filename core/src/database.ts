@@ -65,7 +65,7 @@ export async function setUserToken(webid: string, issuer: string, id: string, se
  * TODO: (After that of `getUserInfo()`) Remove this function.
  * @param webid The WebID of the user, whose calendar URLs are to be modified/replaced.
  * @param ics The new calendar URL(s) (string or string array).
- * @returns `true` if success; `false` if user not registered.
+ * @returns `true` if success; `undefined` if user not registered.
  */
 export async function setCalendarSourceUrl(webid: string, ics: string[]|string) {
     if (webid in db_parsed) {
@@ -82,14 +82,14 @@ export async function setCalendarSourceUrl(webid: string, ics: string[]|string) 
             return true;
         }
     }
-    return false;
+    return undefined;
 }
 
 /**
  * De-register the user (WebID) from the orchestrator.
  * TODO: Handle different status differently, which may require changing return values.
  * @param webid The WebID to de-register.
- * @returns `true` if success; `false` if deleting failed or user does not exist (not registered).
+ * @returns `true` if success; `false` if failed; `undefined` if user does not exist (not registered).
  */
 export async function deleteUser(webid: string) {
     if (webid in db_parsed) {
@@ -111,7 +111,7 @@ export async function deleteUser(webid: string) {
 
         return true;
     } else {
-        return false;
+        return undefined;
     }
 }
 
