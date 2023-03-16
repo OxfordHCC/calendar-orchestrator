@@ -89,7 +89,7 @@ export async function setCalendarSourceUrl(webid: string, ics: string[]|string) 
  * De-register the user (WebID) from the orchestrator.
  * TODO: Handle different status differently, which may require changing return values.
  * @param webid The WebID to de-register.
- * @returns `true` if success; `false` if failed; `undefined` if user does not exist (not registered).
+ * @returns `true` if success; `undefined` if user does not exist (not registered).
  */
 export async function deleteUser(webid: string) {
     if (webid in db_parsed) {
@@ -102,7 +102,7 @@ export async function deleteUser(webid: string) {
                 try {
                     await deleteConfig(pod, authFetch); //TODO: What if failed? Needs to notify the user.
                 } catch(e) {
-                    return false;
+                    throw new Error("Error deleting user config in Pod");
                 }
             }
         }

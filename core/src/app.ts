@@ -83,14 +83,17 @@ app.post('/user', async (req: Request, res: Response) => {
 app.delete('/user', async (req: Request, res: Response) => {
     const req_content = req.params;
     const webid = req_content.webid;
-    const result = await deleteUser(webid);
-    if (result) {
-        res.send(result);
-    } else if (result == undefined) {
-            res.status(500);
-            res.send("User not registered");
-    } else {
+    let result: true | undefined;
+    try {
+        result = await deleteUser(webid);
+    } catch (e) {
         res.status(500);
+        res.send((e as Error).message);
+    }
+    if (result == undefined) {
+        res.status(500);
+        res.send("User not registered");
+    } else {
         res.send();
     }
 });
