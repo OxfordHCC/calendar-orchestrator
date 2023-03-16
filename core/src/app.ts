@@ -80,8 +80,8 @@ app.post('/user', async (req: Request, res: Response) => {
     res.send("Invalid request: insufficient or incorrect data");
 });
 
-app.delete('/user', async (req, res) => {
-    const req_content = req.body;
+app.delete('/user', async (req: Request, res: Response) => {
+    const req_content = req.params;
     const webid = req_content.webid;
     const result = await deleteUser(webid);
     if (result) {
