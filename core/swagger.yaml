@@ -1,4 +1,4 @@
-penapi: 3.0.0
+openapi: 3.0.0
 info:
   title: Calendar Orchestrator
   description: The Orchestrator component for the Solid Calendar (aka Knoodle).
@@ -65,7 +65,7 @@ paths:
                 email:
                   type: string
                 password:
-                  typg: string
+                  type: string
                 cal_url:
                   type: string
               required:
@@ -82,17 +82,12 @@ paths:
           description: Unknown error or invalid request
     delete:
       summary: Delete a registered user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                webid:
-                  type: string
-              required:
-                - webid
+      parameters:
+        - in: query
+          name: webid
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: Success, or user not found
@@ -109,7 +104,7 @@ paths:
               schema:
                 type: array
                 items:
-                  schema: object
+                  type: object
                   properties:
                     webid:
                       type: string
