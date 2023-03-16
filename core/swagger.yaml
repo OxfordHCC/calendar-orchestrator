@@ -76,10 +76,10 @@ paths:
       responses:
         '200':
           description: Success
-        '401':
-          description: Execution failed
+        '400':
+          description: Invalid request (e.g. missing fields)
         '500':
-          description: Unknown error or invalid request
+          description: Error in executing request
     delete:
       summary: Delete a registered user
       parameters:
@@ -90,9 +90,9 @@ paths:
           required: true
       responses:
         '200':
-          description: Success, or user not found
+          description: Success
         '500':
-          description: Unknown error
+          description: Error
   /status:
     get:
       summary: Update all users' calendar data
