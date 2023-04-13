@@ -20,9 +20,10 @@ export default function SignUpForm({ trigger }) {
   return (
     <>
       <Typography variant="subtitle1">
-        Don't have an availability calendar yet? Enter your email and password
-        to allow knoodle to fetch availability calendar from google calendar and
-        store it into your pod.
+        Haven't used the calendar orchestrator before? Enter your Solid
+        credentials to allow the orchestrator to read/write to your Pod, so it
+        can fetch external calendar and store it into your Pod.
+        You can skip this step if you have done so previously.
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
@@ -31,7 +32,7 @@ export default function SignUpForm({ trigger }) {
               required
               id="email"
               name="email"
-              label="Email"
+              label="Username/Email"
               fullWidth
               autoComplete="email"
               variant="standard"
