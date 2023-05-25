@@ -52,12 +52,17 @@ app.post('/user', async (req: Request, res: Response) => {
         return;
     }
     if (webid && cal_url) {
-        const res2 = await updateCalendarUrl(webid, cal_url);
-        if (res2 == undefined) {
+        try {
+            const res2 = await updateCalendarUrl(webid, cal_url);
+            if (res2 == undefined) {
+                res.status(500);
+                res.send("User not registered");
+            } else {
+                res.send();
+            }
+        } catch (e) {
             res.status(500);
-            res.send("User not registered");
-        } else {
-            res.send();
+            res.send((e as Error).message);
         }
         return;
     }

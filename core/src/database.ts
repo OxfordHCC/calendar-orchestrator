@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import { getPodUrlAll } from "@inrupt/solid-client";
-import { getAuthFetch, getOidcIssuer } from './solid-helper.js';
+import { getAuthFetch, getOidcIssuer, MissingFieldError } from './solid-helper.js';
 import { retrieveConfig, updateConfig, deleteConfig } from './config-pod.js';
 
 const DB_PATH = "db.json";
@@ -63,6 +63,7 @@ export async function setUserToken(webid: string, issuer: string, id: string, se
  * Set the external calendar URL(s) for the given user (WebID).
  * This is for compatibility. The orchestrator should not directly modify the configuration. User the App should be preferred.
  * TODO: (After that of `getUserInfo()`) Remove this function.
+ * TODO: Throw errors when something goes wrong instead of printing to console inside the function.
  * @param webid The WebID of the user, whose calendar URLs are to be modified/replaced.
  * @param ics The new calendar URL(s) (string or string array).
  * @returns `true` if success; `undefined` if user not registered.
@@ -74,6 +75,9 @@ export async function setCalendarSourceUrl(webid: string, ics: string[]|string) 
             const { id, secret, issuer, url } = userInfo;
             let authFetch = await getAuthFetch(id, secret, issuer);
             const pod = (await getPodUrlAll(webid))[0];
+            if (!pod) {
+                throw new MissingFieldError(`User ${webid} does not have pim:storage in profile. Failed to create config in Pod.`);
+            }
             if (!Array.isArray(ics)) {
                 ics = [ics];
             }

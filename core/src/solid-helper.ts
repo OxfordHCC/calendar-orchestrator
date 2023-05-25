@@ -13,7 +13,7 @@ import {
 import { SOLID } from "@inrupt/vocab-solid";
 import { withoutTrailingSlash } from "./utils.js";
 
-class MissingFieldError extends Error {
+export class MissingFieldError extends Error {
     constructor(msg: string) {
         super(msg);
 
