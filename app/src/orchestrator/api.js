@@ -1,14 +1,22 @@
 function callApi(endpoint, method, data) {
     console.log(data);
-    return new Promise(
-        (resolve, reject) => {
-            fetch(endpoint, {
+    const myFetch = () => {
+        if ((method == 'GET') || (method == 'OPTIONS')) {
+            return fetch(endpoint + new URLSearchParams(...data).toString());
+        } else {
+            return fetch(endpoint, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
-            })
+            });
+        }
+    }
+
+    return new Promise(
+        (resolve, reject) => {
+            myFetch()
                 .then((response) => {
                     if (response.ok) {
                         resolve(response.body);

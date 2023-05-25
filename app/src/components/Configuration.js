@@ -62,7 +62,8 @@ export default function Configuration() {
         issuer: oidcIssuer,
       })
     }
-    if (!basicInfo.issuer && session.info.isLoggedIn) {
+    // if (!basicInfo.issuer && session.info.isLoggedIn) {
+    if (!basicInfo.issuer && basicInfo.webid) {
       getIssuer();
       getConfigState();
     }
