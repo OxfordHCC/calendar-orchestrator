@@ -99,8 +99,8 @@ app.delete('/user', async (req: Request, res: Response) => {
 });
 
 app.get('/status', async (req, res) => {
-    const result = await updateCalendarAll();
-    res.send(result);
+    const errors = await updateCalendarAll(true);
+    res.send(errors);
 });
 
 app.listen(port, () => {

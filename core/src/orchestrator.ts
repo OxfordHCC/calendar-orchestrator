@@ -31,18 +31,26 @@ export async function registerUser(email: string, password: string, webid: strin
     return result;
 }
 
-export async function updateCalendarAll() {
+export async function updateCalendarAll(collectErrors?: boolean): Promise<Error[]> {
     const users = await listUsers();
+    const errors = [] as Error[];
     users.map(async (user) => {
         const webid = user.webid;
         const info = await getUserInfo(webid);
         console.log("Updating", webid);
         if (info) {
-            updateAvailability(webid, info.issuer);
-            console.log("Done", webid);
+            try {
+                await updateAvailability(webid, info.issuer);
+                console.log("Done", webid);
+            } catch (e) {
+                if (collectErrors) {
+                    errors.push(e);
+                }
+                console.error("Error updating for %s: %s", webid, (e as Error).message);
+            }
         } else {
             console.error(`No user info for ${webid}. Skipping`);
         }
     });
-    return users;
+    return errors;
 }
