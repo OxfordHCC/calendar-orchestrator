@@ -1,3 +1,7 @@
+// Type of errors. Used to differentiate between errors sent by upstream (orchestrator) or errors emerged locally
+export const T_UPSTREAM = 1;
+export const T_APP = 2;
+
 function callApi(endpoint, method, data) {
     console.log(data);
     const myFetch = () => {
@@ -19,12 +23,22 @@ function callApi(endpoint, method, data) {
             myFetch()
                 .then((response) => {
                     if (response.ok) {
-                        resolve(response.body);
+                        response.text().then((text) => {
+                            resolve(text);
+                        });
                     } else {
-                        reject(`${response.status}: ${response.body}`);
+                        response.text().then((text) => {
+                            reject({
+                                type: T_UPSTREAM,
+                                message: `${response.status}: ${text}`,
+                            });
+                        });
                     }
                 }, (error) => {
-                    reject(error);
+                    reject({
+                        type: T_APP,
+                        message: error,
+                    });
                 });
         }
     );

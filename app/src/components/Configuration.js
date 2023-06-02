@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { getRDFasJson } from "../utils/fetchHelper";
 import { useSession } from "@inrupt/solid-ui-react";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,10 +17,14 @@ import Review from "./ConfigReview";
 import SignUpForm from "./SignUpForm";
 import { useSnackbar } from "notistack";
 import BasicInfoForm from "./BasicInfoForm";
+import { generateToken, revokeAccess, T_UPSTREAM, T_APP, updateAvailability, updateIcs, userInfoState } from "../orchestrator/api";
 
 const steps = ["Solid Pod Info", "Allow access", "Calendar .ics config", "Review"];
 
 const theme = createTheme();
+
+const MSG_ERROR_ORCHESTRATOR = "Error received from orchestrator. See console for details."
+const MSG_ERROR_APP = "Error encountered. See console for details."
 
 export default function Configuration() {
   const [activeStep, setActiveStep] = useState(0);
@@ -70,20 +75,14 @@ export default function Configuration() {
   }, []);
 
   const getConfigState = async () => {
-    const response = await fetch(
-      "/api/config-state?" + new URLSearchParams({
-        orchestrator_url: basicInfo.orchestratorUrl,
-        webid: basicInfo.webid
-      }).toString()
-    );
-    const data = await response.json();
+    const data = await userInfoState(basicInfo.orchestratorUrl, basicInfo.webid);
     setConfigStatus({ ...configStatus, ...data });
     if (data["user"] && data["ics"]) {
       setActiveStep(2);
     }
   };
 
-  const updateIcs = async () => {
+  const myUpdateIcs = async () => {
     for (const ics of calendarInfo.calendars) {
       if (!ics.endsWith(".ics")) {
         enqueueSnackbar("Invalid .ics url (url should end with .ics)", {
@@ -92,94 +91,53 @@ export default function Configuration() {
         return;
       }
     }
-    const response = await fetch("/api/update-ics", {
-      method: "PUT",
-      body: JSON.stringify({
-        orchestrator_url: basicInfo.orchestratorUrl,
-        ics: calendarInfo.calendars,
-        webid: basicInfo.webid,
-      }),
-    });
 
-    if (response.status == 200) {
-      enqueueSnackbar("Success!", { variant: "success" });
-      setConfigStatus({ ...configStatus, ics: true });
-    }
-
-    const response_text = await response.json();
+    callApi(
+      updateIcs,
+      [basicInfo.orchestratorUrl, calendarInfo.calendars, basicInfo.webid],
+      async () => {
+        enqueueSnackbar("Success!", { variant: "success" });
+        setConfigStatus({ ...configStatus, ics: true });
+      }
+    );
   };
 
-  const revokeAccess = async () => {
-    const response = await fetch("/api/revoke-access", {
-      method: "DELETE",
-      body: JSON.stringify({
-        orchestrator_url: basicInfo.orchestratorUrl,
-        webid: basicInfo.webid,
-      }),
-    });
-
-    if (response.status == 200) {
-      enqueueSnackbar("Success!", { variant: "success" });
-      setConfigStatus({ ...configStatus, ics: false, user: false });
-    }
-
-    const response_text = await response.json();
+  const myRevokeAccess = async () => {
+    callApi(
+      revokeAccess,
+      [basicInfo.orchestratorUrl, basicInfo.webid],
+      async () => {
+        enqueueSnackbar("Success!", { variant: "success" });
+        setConfigStatus({ ...configStatus, ics: false, user: false });
+      }
+    );
   };
 
-  const generateToken = async (email, password) => {
-    const response = await fetch("/api/generate-token", {
-      method: "POST",
-      // The email/password fields are those of your account.
-      // The name field will be used when generating the ID of your token.
-      body: JSON.stringify({
-        orchestrator_url: basicInfo.orchestratorUrl,
-        webid: basicInfo.webid,
-        email: email,
-        password: password,
-        issuer: basicInfo.issuer,
-        name: "my-token",
-      }),
-    });
-
-    if (response.status >= 400 && response.status < 600) {
-      enqueueSnackbar("Invalid login credentials", { variant: "error" });
-      return;
-    }
-
-    if (response.status == 200) {
-      setConfigStatus({ ...configStatus, user: true });
-      enqueueSnackbar("Success!", { variant: "success" });
-    }
-
-    const response_json = await response.json();
-    console.log(response_json);
+  const myGenerateToken = async (email, password) => {
+    callApi(generateToken, [
+      basicInfo.orchestratorUrl,
+      email,
+      password,
+      basicInfo.webid,
+      basicInfo.issuer,
+    ]);
   };
 
-  const updateAvailability = async () => {
+  const myUpdateAvailability = async () => {
     setConfigStatus({ ...configStatus, updating: true });
-    const response = await fetch("/api/update-availability", {
-      method: "PUT",
-      body: JSON.stringify({
-        orchestrator_url: basicInfo.orchestratorUrl,
-        webid: basicInfo.webid,
-        issuer: basicInfo.issuer,
-      }),
-    });
-    setConfigStatus({ ...configStatus, updating: false });
-    if (response.status >= 400 && response.status < 600) {
-      enqueueSnackbar("Failed to generate availability data", {
-        variant: "error",
-      });
-      return;
-    }
-
-    if (response.status == 200) {
-      setConfigStatus({ ...configStatus, user: true });
-      enqueueSnackbar("Success!", { variant: "success" });
-    }
-
-    const calendarData = await response.json();
-    console.log(calendarData);
+    callApi(
+      updateAvailability,
+      [basicInfo.orchestratorUrl, basicInfo.webid, basicInfo.issuer],
+      {
+        onSuccess: (msg) => {
+          setConfigStatus({ ...configStatus, user: true });
+          enqueueSnackbar("Success!", { variant: "success" });
+        },
+        onFinal: () => {
+          setConfigStatus({ ...configStatus, updating: false });
+        },
+      }
+    );
   };
 
   function getStepContent(step) {
@@ -187,11 +145,11 @@ export default function Configuration() {
       case 0:
         return <BasicInfoForm inputValues={basicInfo} setValues={setBasicInfo} />;
       case 1:
-        return <SignUpForm trigger={generateToken} />;
+        return <SignUpForm trigger={myGenerateToken} />;
       case 2:
         return (
           <CalendarInfoForm
-            trigger={updateIcs}
+            trigger={myUpdateIcs}
             inputValues={calendarInfo}
             setValues={setCalendarInfo}
           />
@@ -199,14 +157,44 @@ export default function Configuration() {
       case 3:
         return (
           <Review
-            updateAvailability={updateAvailability}
-            revokeAccess={revokeAccess}
+            updateAvailability={myUpdateAvailability}
+            revokeAccess={myRevokeAccess}
             configStatus={configStatus}
           />
         );
       default:
         throw new Error("Unknown step");
     }
+  }
+
+  async function callApi(
+    method,
+    params,
+    {
+      onSuccess = (data) => {
+        enqueueSnackbar("Success!", { variant: "success" });
+      },
+      onError = (error) => {
+        if (error.type == T_UPSTREAM) {
+          enqueueSnackbar(MSG_ERROR_ORCHESTRATOR, { variant: "error" });
+        } else {
+          enqueueSnackbar(MSG_ERROR_APP, { variant: "error" });
+        }
+        console.error(error.message);
+      },
+      onFinal = () => {},
+    } = {}
+  ) {
+    method(...params)
+      .then((data) => {
+        onSuccess(data);
+      })
+      .catch((error) => {
+        onError(error);
+      })
+      .finally(() => {
+        onFinal();
+      });
   }
 
   return (
