@@ -38,21 +38,21 @@ app.post('/user', async (req: Request, res: Response) => {
     const email = req_content.email;
     const password = req_content.password;
     const cal_url = req_content.cal_url;
-    if (email && password && webid) {
-        const res1 = await registerUser(email, password, webid, issuer);
-        if (res1 == null) {
-            res.status(500);
-            res.json({ error: "Could not generate token" });
-        } else if (!res1) {
-            res.status(500);
-            res.json({ error: "Failed to store user to database" });
-        } else {
-            res.send();
+    try {
+        if (email && password && webid) {
+            const res1 = await registerUser(email, password, webid, issuer);
+            if (res1 == null) {
+                res.status(500);
+                res.json({ error: "Could not generate token" });
+            } else if (!res1) {
+                res.status(500);
+                res.json({ error: "Failed to store user to database" });
+            } else {
+                res.send();
+            }
+            return;
         }
-        return;
-    }
-    if (webid && cal_url) {
-        try {
+        if (webid && cal_url) {
             const res2 = await updateCalendarUrl(webid, cal_url);
             if (res2 == undefined) {
                 res.status(500);
@@ -60,14 +60,9 @@ app.post('/user', async (req: Request, res: Response) => {
             } else {
                 res.send();
             }
-        } catch (e) {
-            res.status(500);
-            res.send((e as Error).message);
+            return;
         }
-        return;
-    }
-    if (webid) {
-        try {
+        if (webid) {
             const res3: string | undefined = await updateAvailability(webid, issuer);
             if (res3 == undefined) {
                 res.status(500);
@@ -75,14 +70,14 @@ app.post('/user', async (req: Request, res: Response) => {
             } else {
                 res.send();
             }
-        } catch (e) {
-            res.status(500);
-            res.send((e as Error).message);
+            return;
         }
-        return;
+        res.status(400);
+        res.send("Invalid request: insufficient or incorrect data");
+    } catch (e) {
+        res.status(500);
+        res.send((e as Error).message);
     }
-    res.status(400);
-    res.send("Invalid request: insufficient or incorrect data");
 });
 
 app.delete('/user', async (req: Request, res: Response) => {
