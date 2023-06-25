@@ -1,0 +1,91 @@
+name: Deploy to gh-pages
+  
+on:
+  push:
+    branches:
+      - "main"
+      - "ci"
+      - "pages"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./app
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: 'app'
+    - run: npm ci
+    - run: npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./app
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: 'app'
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+      with:
+        # Automatically inject basePath in your Next.js configuration file and disable
+        # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
+        #
+        # You may remove this line if you want to manage the configuration yourself.
+        static_site_generator: next
+        generator_config_file: app/next.config.js
+    - run: cat next.config.js || cat app/next.config.js
+    - name: Restore cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          .next/cache
+          # Generate a new cache whenever packages or source files change.
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+    - name: Install dependencies
+      run: npm i
+    - name: Build with Next.js
+      run: npm run build
+    - name: Static HTML export with Next.js
+      run: npx next export
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: ./app/out
+
+    - id: deploy
+      name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v1
+      with:
+        token: ${{ github.token }}
