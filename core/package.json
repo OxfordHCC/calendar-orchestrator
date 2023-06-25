@@ -13,6 +13,7 @@
     "@inrupt/solid-client": "^1.23.3",
     "@inrupt/solid-client-authn-core": "^1.12.3",
     "@inrupt/vocab-solid": "^1.0.4",
+    "@solid/access-token-verifier": "^2.0.5",
     "@types/express": "^4.17.17",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",

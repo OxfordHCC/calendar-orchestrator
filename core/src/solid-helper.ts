@@ -10,8 +10,12 @@ import {
   getUrl,
 } from "@inrupt/solid-client";
 
+import type { RequestMethod, SolidTokenVerifierFunction } from '@solid/access-token-verifier';
+import { createSolidTokenVerifier } from '@solid/access-token-verifier';
+
 import { SOLID } from "@inrupt/vocab-solid";
 import { withoutTrailingSlash } from "./utils.js";
+
 
 export class MissingFieldError extends Error {
     constructor(msg: string) {
@@ -79,3 +83,29 @@ export async function getAuthFetch(id: string, secret: string, issuer: string) {
   });
   return authFetch;
 };
+
+export async function attestWebidPossession(claimedWebid: string, authorizationHeader: string, dpopHeader: string, requestMethod: RequestMethod, requestURL: string): Promise<boolean> {
+  const solidOidcAccessTokenVerifier: SolidTokenVerifierFunction = createSolidTokenVerifier();
+
+  try {
+    const { client_id: clientId, webid: webId } = await solidOidcAccessTokenVerifier(
+      authorizationHeader as string,
+      {
+        header: dpopHeader as string,
+        method: requestMethod as RequestMethod,
+        url: requestURL as string
+      }
+    );
+
+    console.log(`Token belongs to WebID: ${webId} and for client: ${clientId}. Claimed WebID: ${claimedWebid}`);
+
+    return webId == claimedWebid;
+
+  } catch (error: unknown) {
+    const message = `Error verifying Access Token via WebID: ${(error as Error).message}`;
+
+    console.error(message);
+
+    throw new Error(message);
+  }
+}

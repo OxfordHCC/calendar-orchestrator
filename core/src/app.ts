@@ -12,9 +12,22 @@ import {
     updateCalendarAll,
 } from "./orchestrator.js";
 
+import { attestWebidPossession } from "./solid-helper.js";
+import { RequestMethod } from "@solid/access-token-verifier";
+
+export async function attestWebidPossessionFromRequest(claimedWebid: string, req: Request) {
+    const authorizationHeader = req.header('authorization')!;
+    const dpopHeader = req.header('DPoP')!;
+    const requestMethod = req.method as RequestMethod;
+    const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    return await attestWebidPossession(claimedWebid, authorizationHeader, dpopHeader, requestMethod, requestUrl);
+  }
+
 const app = express();
-const port = 3000;
+const port = 3100;
 const update_interval = 4 * 60 * 60 * 1000; // 4 hours
+
+const MSG_WEBID_UNMATCH = "It is forbidden to modify someone else's record. Check your input."
 
 app.use(cors());
 app.use(express.json()); // for parsing application/json
@@ -25,8 +38,15 @@ app.get('/', (req, res) => {
 
 
 app.get('/user', async (req: Request, res: Response) => {
-    const req_content = req.params;
-    const webid = req_content.webid;
+    const req_content = req.query;
+    const webid = req_content.webid as string;
+
+    if (!await attestWebidPossessionFromRequest(webid, req)) {
+        res.status(401);
+        res.send(MSG_WEBID_UNMATCH);
+        return;
+    }
+
     const result = await userInfoState(webid);
     res.send(result);
 });
@@ -38,6 +58,13 @@ app.post('/user', async (req: Request, res: Response) => {
     const email = req_content.email;
     const password = req_content.password;
     const cal_url = req_content.cal_url;
+
+    if (!await attestWebidPossessionFromRequest(webid, req)) {
+        res.status(401);
+        res.send(MSG_WEBID_UNMATCH);
+        return;
+    }
+
     try {
         if (email && password && webid) {
             const res1 = await registerUser(email, password, webid, issuer);
@@ -81,8 +108,15 @@ app.post('/user', async (req: Request, res: Response) => {
 });
 
 app.delete('/user', async (req: Request, res: Response) => {
-    const req_content = req.params;
-    const webid = req_content.webid;
+    const req_content = req.query;
+    const webid = req_content.webid as string;
+
+    if (!await attestWebidPossessionFromRequest(webid, req)) {
+        res.status(401);
+        res.send(MSG_WEBID_UNMATCH);
+        return;
+    }
+
     let result: true | undefined;
     try {
         result = await deleteUser(webid);

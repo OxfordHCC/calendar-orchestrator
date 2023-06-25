@@ -2,13 +2,18 @@
 export const T_UPSTREAM = 1;
 export const T_APP = 2;
 
-function callApi(endpoint, method, data) {
-    console.log(data);
+function callApi(endpoint, method, data, authFetch) {
+    // console.log("callApi with data:", data);
+    if (!authFetch) {
+        authFetch = fetch;
+    }
     const myFetch = () => {
-        if ((method == 'GET') || (method == 'OPTIONS')) {
-            return fetch(endpoint + new URLSearchParams(...data).toString());
+        if ((method == 'GET') || (method == 'OPTIONS') || (method == 'DELETE')) {
+            return authFetch(endpoint + '?' + new URLSearchParams(data).toString(), {
+                method: method,
+            });
         } else {
-            return fetch(endpoint, {
+            return authFetch(endpoint, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,42 +49,42 @@ function callApi(endpoint, method, data) {
     );
 }
 
-export async function generateToken(orchestrator_url, email, password, webid, issuer) {
+export async function generateToken(orchestrator_url, email, password, webid, issuer, authFetch) {
     const data = {
         webid: webid,
         issuer: issuer,
         email: email,
         password: password,
     };
-    return callApi(`${orchestrator_url}/user`, 'POST', data);
+    return callApi(`${orchestrator_url}/user`, 'POST', data, authFetch);
 }
 
-export async function revokeAccess(orchestrator_url, webid) {
+export async function revokeAccess(orchestrator_url, webid, authFetch) {
     const data = {
         webid: webid,
     };
-    return callApi(`${orchestrator_url}/user`, 'DELETE', data);
+    return callApi(`${orchestrator_url}/user`, 'DELETE', data, authFetch);
 }
 
-export async function updateAvailability(orchestrator_url, webid, issuer) {
+export async function updateAvailability(orchestrator_url, webid, issuer, authFetch) {
     const data = {
         webid: webid,
         issuer: issuer,
     }
-    return callApi(`${orchestrator_url}/user`, 'POST', data);
+    return callApi(`${orchestrator_url}/user`, 'POST', data, authFetch);
 }
 
-export async function updateIcs(orchestrator_url, ics, webid) {
+export async function updateIcs(orchestrator_url, ics, webid, authFetch) {
     const data = {
         webid: webid,
         cal_url: ics,
     }
-    return callApi(`${orchestrator_url}/user`, 'POST', data);
+    return callApi(`${orchestrator_url}/user`, 'POST', data, authFetch);
 }
 
-export async function userInfoState(orchestrator_url, webid) {
+export async function userInfoState(orchestrator_url, webid, authFetch) {
     const data = {
         webid: webid,
     }
-    return callApi(`${orchestrator_url}/user`, 'GET', data);
+    return callApi(`${orchestrator_url}/user`, 'GET', data, authFetch);
 }

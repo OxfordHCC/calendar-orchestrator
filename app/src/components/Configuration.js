@@ -47,6 +47,16 @@ export default function Configuration() {
     calendars: [],
   })
 
+  // FIXME: Not working -- not updated when session information changed.
+  useEffect(() => {
+    if (session.info.isLoggedIn && session.info.webId) {
+        setBasicInfo({
+          ...basicInfo,
+          webid: session.info.webId,
+        });
+    }
+  }, [session]);
+
   useEffect(() => {
     async function getIssuer() {
       const frame = {
@@ -75,10 +85,15 @@ export default function Configuration() {
   }, []);
 
   const getConfigState = async () => {
-    const data = await userInfoState(basicInfo.orchestratorUrl, basicInfo.webid);
-    setConfigStatus({ ...configStatus, ...data });
-    if (data["user"] && data["ics"]) {
-      setActiveStep(2);
+    const data = await callApi(
+      userInfoState,
+      [basicInfo.orchestratorUrl, basicInfo.webid]
+    );
+    if (data) {
+      setConfigStatus({ ...configStatus, ...data });
+      if (data["user"] && data["ics"]) {
+        setActiveStep(2);
+      }
     }
   };
 
@@ -106,9 +121,11 @@ export default function Configuration() {
     callApi(
       revokeAccess,
       [basicInfo.orchestratorUrl, basicInfo.webid],
-      async () => {
-        enqueueSnackbar("Success!", { variant: "success" });
-        setConfigStatus({ ...configStatus, ics: false, user: false });
+      {
+        onSuccess: async () => {
+          enqueueSnackbar("Success!", { variant: "success" });
+          setConfigStatus({ ...configStatus, ics: false, user: false });
+        }
       }
     );
   };
@@ -127,7 +144,7 @@ export default function Configuration() {
     setConfigStatus({ ...configStatus, updating: true });
     callApi(
       updateAvailability,
-      [basicInfo.orchestratorUrl, basicInfo.webid, basicInfo.issuer],
+      [basicInfo.orchestratorUrl, basicInfo.webid, basicInfo.issuer, solidFetch],
       {
         onSuccess: (msg) => {
           setConfigStatus({ ...configStatus, user: true });
@@ -185,7 +202,7 @@ export default function Configuration() {
       onFinal = () => {},
     } = {}
   ) {
-    method(...params)
+    method(...params, solidFetch)
       .then((data) => {
         onSuccess(data);
       })
