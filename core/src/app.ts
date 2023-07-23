@@ -19,13 +19,23 @@ export async function attestWebidPossessionFromRequest(claimedWebid: string, req
     const authorizationHeader = req.header('authorization')!;
     const dpopHeader = req.header('DPoP')!;
     const requestMethod = req.method as RequestMethod;
-    const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const _host = req.header('x-forwarded-host') ?? req.get('host');
+    const _proto = req.header('x-forwarded-proto') ?? req.protocol;
+    const requestUrl = `${_proto}://${_host}${pathPrefix}${req.originalUrl}`;
     return await attestWebidPossession(claimedWebid, authorizationHeader, dpopHeader, requestMethod, requestUrl);
-  }
+}
 
 const app = express();
 const port = 3100;
 const update_interval = 4 * 60 * 60 * 1000; // 4 hours
+
+/**
+ * Either empty, or something like `/orchestrator`.
+ * This is added to the requestUrl for Webid attestation. 
+ * A particular use case is being proxied into a path, but later removed it when entering into the orchestrator service.
+ */
+const pathPrefix = '';
+
 
 const MSG_WEBID_UNMATCH = "It is forbidden to modify someone else's record. Check your input."
 
