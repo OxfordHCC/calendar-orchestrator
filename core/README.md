@@ -90,3 +90,10 @@ http POST localhost:3000/user webid=https://my.pod/user1/profile/card#me issuer=
 
 See [swagger.yaml](swagger.yaml) for the documented API.
 You may use any Swagger UI for viewing it, e.g.[the official example](https://swagger.io/tools/swagger-ui/).
+
+## TODO
+
+> Here are some detailed stuffs.
+> For main TODOs in higher level, please see [README on the parent directory](../README.md).
+
+- [ ] Customize port and pathPrefix
