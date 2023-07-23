@@ -36,4 +36,4 @@ The App can be started only when needed, not necessarily deployed.
           - [x] core
           - [ ] app
      - [ ] transformations as in original [solid calendar store](https://github.com/KNowledgeOnWebScale/solid-calendar-store)
-- [ ] Authenticate the user before performing actions for core
+- [x] Authenticate the user before performing actions for core
